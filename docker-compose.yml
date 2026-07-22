@@ -86,8 +86,7 @@ services:
     
     build:
       context: ./account-service
-      dockerfile: Dockerfile
-    
+      dockerfile: Dockerfile 
     ports:
       - "8001:8000"
     environment:
@@ -102,7 +101,6 @@ services:
     build:
       context: ./transaction-service
       dockerfile: Dockerfile
-
     ports:
       - "8002:8000"
     environment:
@@ -120,7 +118,6 @@ services:
     build:
       context: ./report-service
       dockerfile: Dockerfile
-    
     ports:
       - "8003:8000"
     
