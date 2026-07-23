@@ -1,4 +1,5 @@
-1. Implementation StepsOpen your terminal, navigate to your root ExpenseFlow directory, and follow these steps:
+1. Implementation Steps:
+Open your terminal, navigate to your root ExpenseFlow directory, and follow these steps:
 1.Configure the Account Service:Run this inside the account-service directory.
 
 cd account-service
@@ -26,6 +27,7 @@ system Python path.Quotes around brackets ("uvicorn[standard]"): Depending on yo
 prevents terminal syntax errors.The --group dev flag: This keeps your production application images light.
  Packages like pytest, black, and ruff are only needed during local development or CI linting stages. 
 They will not be packed into the final container that runs the code.
+
 3. ValidationTo verify that Poetry generated everything correctly:Look inside any of the service folders. 
 You will now see two new files: pyproject.toml and poetry.lock.Open pyproject.toml to verify it matches the structure we want.
 Run a quick check to ensure the environment is healthy and can read the packages:
@@ -33,4 +35,5 @@ Bash poetry run python -c "import fastapi; print(fastapi.__version__)"
 If it prints out a version number without errors, your Poetry setup is complete.
 
 
-- remember to set poetry config virtualenvs-in-project false before dockerfiles
+NOTE: poetry config virtualenvs.create false in Dockerfile since Docker containers already create an isolated env and no need for any extra venv.
+
