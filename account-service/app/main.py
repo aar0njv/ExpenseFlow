@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .database import engine, Base, get_db
 from . import crud, schemas
@@ -11,7 +11,7 @@ app = FastAPI()
 def health_check():
     return {"status": "healthy"}
 
-@app.post("/accounts", response_model=schemas.AccountResponse, status_code=21)
+@app.post("/accounts", response_model=schemas.AccountResponse, status_code=201)
 def create_new_account(account: schemas.AccountCreate, db: Session = Depends(get_db)):
     
     existing_account = crud.get_account_by_email(db, email = account.email)
