@@ -15,6 +15,4 @@ class AccountResponse(AccountBase):
         from_attributes = True
 
 
-# Pydantic ensures that if we 
-# forget to pass a name, or sends text instead of a 
-# numeric balance, the API rejects it instantly before hitting the database.
+# Pydantic ensures that if we forget to pass a name, or sends text instead of a numeric balance, the API rejects it instantly before hitting the database.

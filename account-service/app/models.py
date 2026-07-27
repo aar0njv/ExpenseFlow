@@ -10,3 +10,7 @@ class Account(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     balance = Column(Float, default=0.0)
 
+
+
+# database table as a Python class
+# Account maps to accounts table: id, name, email and balance
