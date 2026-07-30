@@ -26,3 +26,16 @@ def read_account(account_id: int, db: Session = Depends(get_db)):
     if db_account is None:
         raise HTTPException(status_code=404, detail="Account not found")
     return db_account
+
+@app.patch("/accounts/{account_id}/balance", response_model=schemas.AccountResponse)
+def update_account_balance(account_id: int, balance_update: schemas.BalanceUpdate, db: Session = Depends(get_db)):
+    if balance_update.transaction_type not in ["deposit", "withdrawal"]:
+        raise HTTPException(status_code=400, detail="Invalid type. Must be 'deposit' or 'withdrawal'.")
+
+    if balance_update.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be greater than zero.")
+
+    db_account = crud.update_account_balance(db, account_id=account_id, balance_update=balance_update)
+    if db_account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    return db_account

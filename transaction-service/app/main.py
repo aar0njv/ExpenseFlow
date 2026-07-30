@@ -1,12 +1,37 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from urllib import request, error
+import json
+import os
 from .database import engine, Base, get_db
 from . import crud, schemas
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Transaction Service")
+ACCOUNT_SERVICE_URL = os.getenv("ACCOUNT_SERVICE_URL", "http://account-service:8000")
+
+def update_account_balance(transaction: schemas.TransactionCreate):
+    payload = json.dumps({
+        "amount": transaction.amount,
+        "transaction_type": transaction.transaction_type,
+    }).encode("utf-8")
+    req = request.Request(
+        f"{ACCOUNT_SERVICE_URL}/accounts/{transaction.account_id}/balance",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="PATCH",
+    )
+
+    try:
+        request.urlopen(req, timeout=5)
+    except error.HTTPError as exc:
+        if exc.code == 404:
+            raise HTTPException(status_code=404, detail="Account not found")
+        raise HTTPException(status_code=exc.code, detail="Failed to update account balance")
+    except error.URLError:
+        raise HTTPException(status_code=503, detail="Account service unavailable")
 
 @app.get("/health")
 def health_check():
@@ -21,7 +46,9 @@ def create_new_transaction(transaction: schemas.TransactionCreate, db: Session =
     if transaction.amount <= 0:
         raise HTTPException(status_code=400, detail="Amount must be greater than zero.")
     
-    return crud.create_transaction(db=db, transaction=transaction)
+    db_transaction = crud.create_transaction(db=db, transaction=transaction)
+    update_account_balance(transaction)
+    return db_transaction
 
 
 @app.get("/transactions/account/{account_id}", response_model=List[schemas.TransactionResponse])

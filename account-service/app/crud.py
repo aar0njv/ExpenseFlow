@@ -18,3 +18,17 @@ def create_account(db: Session, account: schemas.AccountCreate):
     db.commit()
     db.refresh(db_account)
     return db_account
+
+def update_account_balance(db: Session, account_id: int, balance_update: schemas.BalanceUpdate):
+    db_account = get_account(db, account_id=account_id)
+    if db_account is None:
+        return None
+
+    if balance_update.transaction_type == "deposit":
+        db_account.balance += balance_update.amount
+    else:
+        db_account.balance -= balance_update.amount
+
+    db.commit()
+    db.refresh(db_account)
+    return db_account

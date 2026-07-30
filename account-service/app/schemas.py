@@ -7,6 +7,10 @@ class AccountBase(BaseModel):
 class AccountCreate(AccountBase):
     balance: float = 0.0
 
+class BalanceUpdate(BaseModel):
+    amount: float
+    transaction_type: str
+
 class AccountResponse(AccountBase):
     id: int
     balance: float
