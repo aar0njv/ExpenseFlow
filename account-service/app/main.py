@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from .database import engine, Base, get_db
-from . import crud, schemas, security
+from . import crud, schemas, security, models
 
 Base.metadata.create_all(bind=engine)
 
