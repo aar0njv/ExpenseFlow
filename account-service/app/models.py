@@ -1,7 +1,7 @@
-
 from sqlalchemy import Column, Integer, String, Float, DateTime
 from datetime import datetime, timezone
 from .database import Base
+
 
 class Account(Base):
     __tablename__ = "accounts"
@@ -12,7 +12,6 @@ class Account(Base):
     hashed_password = Column(String, nullable=False)
     balance = Column(Float, default=0.0)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
 
 
 # database table as a Python class

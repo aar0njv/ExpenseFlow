@@ -2,11 +2,13 @@ from pydantic import BaseModel
 from typing import List
 from datetime import datetime
 
+
 class TransactionSummary(BaseModel):
     id: int
     amount: float
     transaction_type: str
     timestamp: datetime
+
 
 class FinancialReportResponse(BaseModel):
     account_id: int

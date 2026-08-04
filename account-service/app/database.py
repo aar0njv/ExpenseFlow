@@ -2,13 +2,22 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg://account_user:account_password@localhost:5432/account_db")
+
+def _required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"{name} environment variable is required")
+    return value
+
+
+DATABASE_URL = _required_env("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
 
 def get_db():
     db = SessionLocal()
@@ -19,6 +28,5 @@ def get_db():
 
 
 # engine: SQLAlchemy connection to Postgres
-# SessionLocal: hands out DB Sessions 
+# SessionLocal: hands out DB Sessions
 # get_db(): yields a session for a request, db.close() afterwards
-

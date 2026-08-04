@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, DateTime
 from datetime import datetime, timezone
 from .database import Base
 
+
 class Transaction(Base):
     __tablename__ = "transactions"
 

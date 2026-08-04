@@ -20,9 +20,9 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_USER: account_user
-      POSTGRES_PASSWORD: account_password
-      POSTGRES_DB: account_db
+      POSTGRES_USER: ${ACCOUNT_DB_USER}
+      POSTGRES_PASSWORD: ${ACCOUNT_DB_PASSWORD}
+      POSTGRES_DB: ${ACCOUNT_DB_NAME}
 
     volumes:
       - account_db_data:/var/lib/postgresql/data
@@ -31,7 +31,7 @@ services:
       - expenseflow_net
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U account_user -d account_db"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -42,9 +42,9 @@ services:
     restart: unless-stopped
     
     environment:
-      POSTGRES_USER: transaction_user
-      POSTGRES_PASSWORD: transaction_password
-      POSTGRES_DB: transaction_db
+      POSTGRES_USER: ${TRANSACTION_DB_USER}
+      POSTGRES_PASSWORD: ${TRANSACTION_DB_PASSWORD}
+      POSTGRES_DB: ${TRANSACTION_DB_NAME}
     
     volumes:
       - transaction_db_data:/var/lib/postgresql/data
@@ -53,7 +53,7 @@ services:
       - expenseflow_net
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U transaction_user -d transaction_db"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -64,9 +64,9 @@ services:
     restart: unless-stopped
     
     environment:
-      POSTGRES_USER: report_user
-      POSTGRES_PASSWORD: report_password
-      POSTGRES_DB: report_db
+      POSTGRES_USER: ${REPORT_DB_USER}
+      POSTGRES_PASSWORD: ${REPORT_DB_PASSWORD}
+      POSTGRES_DB: ${REPORT_DB_NAME}
     
     volumes:
       - report_db_data:/var/lib/postgresql/data
@@ -75,7 +75,7 @@ services:
       - expenseflow_net
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U report_user -d report_db"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -92,7 +92,10 @@ services:
       - "8001:8000"
 
     environment:
-      - DATABASE_URL=postgresql+psycopg://account_user:account_password@account-db:5432/account_db
+      DATABASE_URL: ${ACCOUNT_DATABASE_URL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
     networks:
       - expenseflow_net
     
@@ -108,7 +111,8 @@ services:
     ports:
       - "8002:8000"
     environment:
-      - DATABASE_URL=postgresql+psycopg://transaction_user:transaction_password@transaction-db:5432/transaction_db
+      DATABASE_URL: ${TRANSACTION_DATABASE_URL}
+      ACCOUNT_SERVICE_URL: ${ACCOUNT_SERVICE_URL}
     
     networks:
       - expenseflow_net
@@ -126,9 +130,9 @@ services:
       - "8003:8000"
     
     environment:
-      - DATABASE_URL=postgresql+psycopg://report_user:report_password@report-db:5432/report_db
-      - ACCOUNT_SERVICE_URL=http://account-service:8000
-      - TRANSACTION_SERVICE_URL=http://transaction-service:8000
+      DATABASE_URL: ${REPORT_DATABASE_URL}
+      ACCOUNT_SERVICE_URL: ${REPORT_ACCOUNT_SERVICE_URL}
+      TRANSACTION_SERVICE_URL: ${REPORT_TRANSACTION_SERVICE_URL}
     
     networks:
       - expenseflow_net
