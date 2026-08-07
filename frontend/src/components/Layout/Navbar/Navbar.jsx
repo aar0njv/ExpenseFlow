@@ -15,11 +15,20 @@ export const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const scrollToSection = (e, targetId) => {
+        e.preventDefault();
+        setMobileOpen(false);
+        const element = document.querySelector(targetId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     return (
         <header className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
             <div className="navbar-container">
                 {/* Brand Logo */}
-                <a href="#home" className="navbar-logo">
+                <a href="#home" className="navbar-logo" onClick={(e) => scrollToSection(e, '#home')}>
                     <div className="logo-icon">
                         <TrendingUp size={20} />
                     </div>
@@ -30,22 +39,22 @@ export const Navbar = () => {
                 <nav>
                     <ul className={`navbar-links ${mobileOpen ? 'open' : ''}`}>
                         <li>
-                            <a href="#home" className="nav-link" onClick={() => setMobileOpen(false)}>
+                            <a href="#home" className="nav-link" onClick={(e) => scrollToSection(e, '#home')}>
                                 Home
                             </a>
                         </li>
                         <li>
-                            <a href="#features" className="nav-link" onClick={() => setMobileOpen(false)}>
+                            <a href="#features" className="nav-link" onClick={(e) => scrollToSection(e, '#features')}>
                                 Features
                             </a>
                         </li>
                         <li>
-                            <a href="#how-it-works" className="nav-link" onClick={() => setMobileOpen(false)}>
+                            <a href="#how-it-works" className="nav-link" onClick={(e) => scrollToSection(e, '#how-it-works')}>
                                 How It Works
                             </a>
                         </li>
                         <li>
-                            <a href="#auth" className="nav-btn" onClick={() => setMobileOpen(false)}>
+                            <a href="#auth" className="nav-btn" onClick={(e) => scrollToSection(e, '#auth')}>
                                 Sign In / Register
                             </a>
                         </li>

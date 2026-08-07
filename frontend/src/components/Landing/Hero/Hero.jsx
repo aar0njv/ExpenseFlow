@@ -3,6 +3,14 @@ import { ArrowRight, ShieldCheck, TrendingUp, ArrowDownLeft, ArrowUpRight } from
 import './Hero.css';
 
 export const Hero = () => {
+    const scrollToSection = (e, targetId) => {
+        e.preventDefault();
+        const element = document.querySelector(targetId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     return (
         <section id="home" className="hero-section">
             <div className="hero-glow"></div>
@@ -24,10 +32,10 @@ export const Hero = () => {
                 </p>
 
                 <div className="hero-actions animate-fade-in">
-                    <a href="#auth" className="hero-btn-primary">
+                    <a href="#auth" className="hero-btn-primary" onClick={(e) => scrollToSection(e, '#auth')}>
                         Get Started <ArrowRight size={18} />
                     </a>
-                    <a href="#how-it-works" className="hero-btn-secondary">
+                    <a href="#how-it-works" className="hero-btn-secondary" onClick={(e) => scrollToSection(e, '#how-it-works')}>
                         Explore Features
                     </a>
                 </div>
