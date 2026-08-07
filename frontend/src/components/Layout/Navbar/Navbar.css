@@ -82,6 +82,7 @@
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
 }
 
 .nav-btn:hover {

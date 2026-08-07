@@ -1,16 +1,27 @@
-# React + Vite
+# ExpenseFlow - Frontend Interface
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Project Purpose**: This project was created solely for the purpose of learning and practicing hands-on **DevOps practices**, microservices architecture, containerization, and continuous integration / continuous deployment (CI/CD) pipelines.
 
-Currently, two official plugins are available:
+> **AI Design Note**: The entire frontend user interface, layout aesthetics, glassmorphic styling, and component structure were generated with AI assistance to accelerate development and focus on DevOps implementation.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🛠️ Tools & Technologies Used
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Core Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
+- **Styling**: Vanilla CSS3 (Custom Glassmorphism design system, CSS variables, `@keyframes` entrance animations)
+- **Iconography**: [Lucide React](https://lucide.dev/)
+- **HTTP Client**: [Axios](https://axios-http.com/) (configured for microservice REST APIs)
+- **Containerization**: Docker & Docker Compose
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Running Locally
+
+```bash
+# Install dependencies
+npm install
+
+# Start local development server
+npm run dev
+```
