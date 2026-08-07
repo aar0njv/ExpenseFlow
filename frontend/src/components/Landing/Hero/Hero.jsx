@@ -1,8 +1,8 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck, TrendingUp, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
-import './HeroSection.css';
+import './Hero.css';
 
-export const HeroSection = () => {
+export const Hero = () => {
     return (
         <section id="home" className="hero-section">
             <div className="hero-glow"></div>
@@ -66,4 +66,4 @@ export const HeroSection = () => {
     );
 };
 
-export default HeroSection;
+export default Hero;
