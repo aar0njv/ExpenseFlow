@@ -1,23 +1,43 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, DollarSign, Eye, EyeOff, UserPlus } from 'lucide-react';
-import './LoginForm.css'; // Shared form styles
+import { useAuth } from '../../context/AuthContext';
+import './LoginForm.css';
 import './RegisterForm.css';
 
 export const RegisterForm = ({ switchToLogin }) => {
+    const { register } = useAuth();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [balance, setBalance] = useState('1000');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert(`[Demo UI] Account created for: ${name} (${email}) with initial balance: $${balance}`);
+        setError('');
+        setLoading(true);
+
+        try {
+            await register(name, email, password, balance);
+        } catch (err) {
+            setError(
+                err.response?.data?.detail || 'Account creation failed. Email may already be registered.'
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <form className="auth-form" onSubmit={handleSubmit}>
-            {/* Full Name Input */}
+            {error && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', padding: '10px 14px', borderRadius: '10px', fontSize: '0.88rem' }}>
+                    {error}
+                </div>
+            )}
+
             <div className="form-group">
                 <label className="form-label">Full Name</label>
                 <div className="input-wrapper">
@@ -33,7 +53,6 @@ export const RegisterForm = ({ switchToLogin }) => {
                 </div>
             </div>
 
-            {/* Email Input */}
             <div className="form-group">
                 <label className="form-label">Email Address</label>
                 <div className="input-wrapper">
@@ -49,7 +68,6 @@ export const RegisterForm = ({ switchToLogin }) => {
                 </div>
             </div>
 
-            {/* Password Input */}
             <div className="form-group">
                 <label className="form-label">Password</label>
                 <div className="input-wrapper">
@@ -72,7 +90,6 @@ export const RegisterForm = ({ switchToLogin }) => {
                 </div>
             </div>
 
-            {/* Initial Balance Input */}
             <div className="form-group">
                 <label className="form-label">Initial Account Balance ($)</label>
                 <div className="input-wrapper">
@@ -91,8 +108,8 @@ export const RegisterForm = ({ switchToLogin }) => {
             </div>
 
             {/* Submit Button */}
-            <button type="submit" className="form-submit-btn">
-                <UserPlus size={18} /> Create Account
+            <button type="submit" className="form-submit-btn" disabled={loading}>
+                <UserPlus size={18} /> {loading ? 'Creating Account...' : 'Create Account'}
             </button>
 
             {/* Switch to Login */}
