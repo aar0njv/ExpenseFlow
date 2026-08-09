@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, Menu, X } from 'lucide-react';
+import { TrendingUp, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 import './Navbar.css';
 
 export const Navbar = () => {
+    const { isLoggedIn, user, logout } = useAuth();
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -38,26 +40,52 @@ export const Navbar = () => {
                 {/* Desktop Nav Links */}
                 <nav>
                     <ul className={`navbar-links ${mobileOpen ? 'open' : ''}`}>
-                        <li>
-                            <a href="#home" className="nav-link" onClick={(e) => scrollToSection(e, '#home')}>
-                                Home
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#features" className="nav-link" onClick={(e) => scrollToSection(e, '#features')}>
-                                Features
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#how-it-works" className="nav-link" onClick={(e) => scrollToSection(e, '#how-it-works')}>
-                                How It Works
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#auth" className="nav-btn" onClick={(e) => scrollToSection(e, '#auth')}>
-                                Sign In / Register
-                            </a>
-                        </li>
+                        {isLoggedIn ? (
+                            <>
+                                <li>
+                                    <a href="#dashboard" className="nav-link" onClick={(e) => scrollToSection(e, '#dashboard')}>
+                                        <LayoutDashboard size={16} style={{ display: 'inline', marginRight: '4px' }} /> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <span className="nav-link" style={{ color: '#10b981', fontWeight: '600' }}>
+                                        {user?.name}
+                                    </span>
+                                </li>
+                                <li>
+                                    <button
+                                        className="nav-btn"
+                                        onClick={logout}
+                                        style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', boxShadow: '0 4px 6px rgba(239, 68, 68, 0.3)' }}
+                                    >
+                                        <LogOut size={16} /> Sign Out
+                                    </button>
+                                </li>
+                            </>
+                        ) : (
+                            <>
+                                <li>
+                                    <a href="#home" className="nav-link" onClick={(e) => scrollToSection(e, '#home')}>
+                                        Home
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#features" className="nav-link" onClick={(e) => scrollToSection(e, '#features')}>
+                                        Features
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#how-it-works" className="nav-link" onClick={(e) => scrollToSection(e, '#how-it-works')}>
+                                        How It Works
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#auth" className="nav-btn" onClick={(e) => scrollToSection(e, '#auth')}>
+                                        Sign In / Register
+                                    </a>
+                                </li>
+                            </>
+                        )}
                     </ul>
                 </nav>
 
