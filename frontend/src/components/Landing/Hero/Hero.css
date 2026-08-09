@@ -1,0 +1,208 @@
+.hero-section {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 140px 24px 80px;
+    overflow: hidden;
+}
+
+/* Background Ambient Glow */
+.hero-glow {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 40%, rgba(0, 0, 0, 0) 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Microservice Badge */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #10b981;
+    margin-bottom: 24px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: #ffffff;
+    /* Bright pure white */
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+/* Hero Subtitle: Crisp readable slate-gray */
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: #cbd5e1;
+    /* Higher contrast slate gray */
+    max-width: 680px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+}
+
+/* Action CTA Buttons */
+.hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.5);
+}
+
+.hero-btn-secondary {
+    background: rgba(240, 246, 252, 0.05);
+    color: #f0f6fc;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid rgba(240, 246, 252, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-btn-secondary:hover {
+    background: rgba(240, 246, 252, 0.1);
+    border-color: rgba(240, 246, 252, 0.3);
+}
+
+/* Floating Card Preview */
+.hero-preview {
+    max-width: 780px;
+    margin: 0 auto;
+    background: rgba(22, 27, 34, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(240, 246, 252, 0.12);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(240, 246, 252, 0.08);
+}
+
+.preview-title {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    /* Crisp muted slate */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.preview-balance {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 6px;
+}
+
+.preview-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.preview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.stat-box {
+    background: rgba(13, 17, 23, 0.6);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(240, 246, 252, 0.05);
+    text-align: left;
+}
+
+.stat-label {
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.stat-value.deposit {
+    color: #10b981;
+}
+
+.stat-value.withdrawal {
+    color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.4rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+}
