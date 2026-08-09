@@ -43,7 +43,7 @@ export const Hero = () => {
                 <div className="hero-preview animate-float">
                     <div className="preview-header">
                         <div>
-                            <div className="preview-title">Total Active Account Balance</div>
+                            <div className="preview-title">Active Account Balance</div>
                             <div className="preview-balance">$14,850.50</div>
                         </div>
                         <div className="preview-badge">
