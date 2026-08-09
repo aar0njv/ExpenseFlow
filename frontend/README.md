@@ -6,17 +6,16 @@
 
 ---
 
-## 🛠️ Tools & Technologies Used
+## Tools & Technologies Used
 
 - **Core Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling**: Vanilla CSS3 (Custom Glassmorphism design system, CSS variables, `@keyframes` entrance animations)
-- **Iconography**: [Lucide React](https://lucide.dev/)
+- **Styling**: Vanilla CSS3
 - **HTTP Client**: [Axios](https://axios-http.com/) (configured for microservice REST APIs)
 - **Containerization**: Docker & Docker Compose
 
 ---
 
-## 🚀 Running Locally
+## Running Locally
 
 ```bash
 # Install dependencies

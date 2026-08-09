@@ -1,13 +1,13 @@
 # ExpenseFlow: Microservices Architecture & DevOps Automation Pipeline
 
-> **Core Focus**: A personal engineering project built to demonstrate **backend system design**, **microservices architecture**, **container orchestration**, and **DevOps automation (CI/CD)** workflows.
+> **Core Focus**: A personal engineering project built to demonstrate **backend system design**, **microservices architecture**, **container orchestration** and **DevOps automation (CI/CD)** workflows.
 
 ---
 
 ## Key Microservices & Responsibilities
 
 1. **Account Service**
-   - User registration (`POST /accounts`), authentication (`POST /login` producing Bearer JWT tokens), profile management (`GET /accounts/me`), and balance updates (`PATCH /accounts/{id}/balance`).
+   - User registration (`POST /accounts`), authentication (`POST /login` producing Bearer JWT tokens), profile management (`GET /accounts/me`) and balance updates (`PATCH /accounts/{id}/balance`).
    - Backed by an isolated PostgreSQL container (`account-db`).
 
 2. **Transaction Service**
@@ -21,11 +21,11 @@
    - Backed by an isolated PostgreSQL container (`report-db`).
 
 4. **Single-Page Frontend**
-   - Interactive React + Vite interface with smooth scrolling, glassmorphism aesthetics, and real-time dashboard state. *(UI design accelerated via AI)*.
+   - Interactive React + Vite interface with smooth scrolling, glassmorphism aesthetics and real-time dashboard state. *(UI design accelerated via AI)*.
 
 ---
 
-## Container Orchestration & DevOps Concepts
+## Container Orchestration
 
 - **Service Isolation & Health Checks**: Every microservice relies on PostgreSQL `pg_isready` health checks in `docker-compose.yml` to ensure DB readiness before service startup.
 - **Bridge Network Architecture**: All containers communicate via a private Docker bridge network (`expenseflow_net`).
@@ -38,10 +38,10 @@
 
 - **Backend System Design**: Designed and implemented 3 decoupled Python (FastAPI) microservices.
 - **Database Isolation**: Configured 3 dedicated PostgreSQL containers with schemas and migration engines.
-- **Inter-Service Communication**: Built sync/async REST communication between Transaction, Account, and Report services.
+- **Inter-Service Communication**: Built sync/async REST communication between Transaction, Account and Report services.
 - **Docker Containerization**: Standardized Dockerfiles and multi-container `docker-compose.yml` orchestration.
 - **Frontend Shell**: Developed single-page React frontend with smooth scrolling and animations for dev testing (`npm run dev`).
-- **CI/CD Pipeline Automation**: Automating build, linting, test suites, and deployment workflows.
+- **CI/CD Pipeline Automation**: Automating build, linting, test suites and deployment workflows.
 
 ---
 
