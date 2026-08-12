@@ -20,9 +20,9 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_USER: ${ACCOUNT_DB_USER}
+      POSTGRES_USER: account_user
       POSTGRES_PASSWORD: ${ACCOUNT_DB_PASSWORD}
-      POSTGRES_DB: ${ACCOUNT_DB_NAME}
+      POSTGRES_DB: account_db
 
     volumes:
       - account_db_data:/var/lib/postgresql/data
@@ -42,9 +42,9 @@ services:
     restart: unless-stopped
     
     environment:
-      POSTGRES_USER: ${TRANSACTION_DB_USER}
+      POSTGRES_USER: transaction_user
       POSTGRES_PASSWORD: ${TRANSACTION_DB_PASSWORD}
-      POSTGRES_DB: ${TRANSACTION_DB_NAME}
+      POSTGRES_DB: transaction_db
     
     volumes:
       - transaction_db_data:/var/lib/postgresql/data
@@ -64,9 +64,9 @@ services:
     restart: unless-stopped
     
     environment:
-      POSTGRES_USER: ${REPORT_DB_USER}
+      POSTGRES_USER: report_user
       POSTGRES_PASSWORD: ${REPORT_DB_PASSWORD}
-      POSTGRES_DB: ${REPORT_DB_NAME}
+      POSTGRES_DB: report_db
     
     volumes:
       - report_db_data:/var/lib/postgresql/data
@@ -95,7 +95,7 @@ services:
       DATABASE_URL: ${ACCOUNT_DATABASE_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
     networks:
       - expenseflow_net
     

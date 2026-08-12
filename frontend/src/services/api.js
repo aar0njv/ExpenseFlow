@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-export const ACCOUNT_SERVICE_URL = 'http://localhost:8001';
-export const TRANSACTION_SERVICE_URL = 'http://localhost:8002';
-export const REPORT_SERVICE_URL = 'http://localhost:8003';
+const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+
+export const ACCOUNT_SERVICE_URL = `http://${host}:8001`;
+export const TRANSACTION_SERVICE_URL = `http://${host}:8002`;
+export const REPORT_SERVICE_URL = `http://${host}:8003`;
 export const accountApi = axios.create({
     baseURL: ACCOUNT_SERVICE_URL,
     headers: {
