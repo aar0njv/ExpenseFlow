@@ -32,7 +32,7 @@ build-and-push:services:
     - |
       if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
         echo "Logging into Docker Hub..."
-        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || echo "WARNING: Docker Hub login failed. Check your DOCKERHUB_USERNAME and DOCKERHUB_TOKEN variables."
       fi
   script:
     # --- Account Service ---
