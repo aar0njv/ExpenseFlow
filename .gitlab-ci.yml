@@ -1,0 +1,84 @@
+stages:
+  - test
+  - build-and-push
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# -----------------------------------------------------------------------------
+# Stage 1: Automated Unit & Integration Testing
+# -----------------------------------------------------------------------------
+test:services:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - echo "Installing test and service dependencies..."
+    - pip install --no-cache-dir -r requirements-test.txt
+    - pip install --no-cache-dir -r account-service/requirements.txt
+    - pip install --no-cache-dir -r transaction-service/requirements.txt
+    - pip install --no-cache-dir -r report-service/requirements.txt
+    - echo "Running Pytest suite for account-service..."
+    - PYTHONPATH=account-service pytest account-service/tests/ --cov=account-service/app
+    - echo "Running Pytest suite for transaction-service..."
+    - PYTHONPATH=transaction-service pytest transaction-service/tests/ --cov=transaction-service/app
+    - echo "Running Pytest suite for report-service..."
+    - PYTHONPATH=report-service pytest report-service/tests/ --cov=report-service/app
+
+# -----------------------------------------------------------------------------
+# Stage 2: Multi-Registry Docker Image Build & Push
+# (GitLab Container Registry + Docker Hub)
+# -----------------------------------------------------------------------------
+build-and-push:services:
+  stage: build-and-push
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - echo "Logging into GitLab Container Registry..."
+    - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - |
+      if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+        echo "Logging into Docker Hub..."
+        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      else
+        echo "WARNING: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN not set. Skipping Docker Hub login."
+      fi
+  script:
+    # --- Account Service ---
+    - echo "Building account-service Docker image..."
+    - docker build -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/account-service:latest" ./account-service
+    - docker push "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE/account-service:latest"
+    - |
+      if [ -n "$DOCKERHUB_USERNAME" ]; then
+        docker tag "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/account-service:latest" "$DOCKERHUB_USERNAME/expenseflow-account-service:latest"
+        docker push "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA"
+        docker push "$DOCKERHUB_USERNAME/expenseflow-account-service:latest"
+      fi
+
+    # --- Transaction Service ---
+    - echo "Building transaction-service Docker image..."
+    - docker build -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/transaction-service:latest" ./transaction-service
+    - docker push "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE/transaction-service:latest"
+    - |
+      if [ -n "$DOCKERHUB_USERNAME" ]; then
+        docker tag "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/transaction-service:latest" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest"
+        docker push "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA"
+        docker push "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest"
+      fi
+
+    # --- Report Service ---
+    - echo "Building report-service Docker image..."
+    - docker build -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/report-service:latest" ./report-service
+    - docker push "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE/report-service:latest"
+    - |
+      if [ -n "$DOCKERHUB_USERNAME" ]; then
+        docker tag "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/report-service:latest" "$DOCKERHUB_USERNAME/expenseflow-report-service:latest"
+        docker push "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA"
+        docker push "$DOCKERHUB_USERNAME/expenseflow-report-service:latest"
+      fi
