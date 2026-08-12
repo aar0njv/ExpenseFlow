@@ -5,29 +5,22 @@ stages:
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
 
-# -----------------------------------------------------------------------------
-# Stage 1: Automated Unit & Integration Testing
-# -----------------------------------------------------------------------------
 test:services:
   stage: test
   image: python:3.12-slim
-  script:
+
+  before_script:
     - echo "Installing test and service dependencies..."
     - pip install --no-cache-dir -r requirements-test.txt
-    - pip install --no-cache-dir -r account-service/requirements.txt
-    - pip install --no-cache-dir -r transaction-service/requirements.txt
-    - pip install --no-cache-dir -r report-service/requirements.txt
-    - echo "Running Pytest suite for account-service..."
+  script:
+    - echo "Running Pytest account-service..."
     - PYTHONPATH=account-service pytest account-service/tests/ --cov=account-service/app
-    - echo "Running Pytest suite for transaction-service..."
+    - echo "Running Pytest transaction-service..."
     - PYTHONPATH=transaction-service pytest transaction-service/tests/ --cov=transaction-service/app
-    - echo "Running Pytest suite for report-service..."
+    - echo "Running Pytest report-service..."
     - PYTHONPATH=report-service pytest report-service/tests/ --cov=report-service/app
 
-# -----------------------------------------------------------------------------
-# Stage 2: Multi-Registry Docker Image Build & Push
-# (GitLab Container Registry + Docker Hub)
-# -----------------------------------------------------------------------------
+
 build-and-push:services:
   stage: build-and-push
   image: docker:24.0.5
@@ -44,41 +37,45 @@ build-and-push:services:
         echo "WARNING: DOCKERHUB_USERNAME and DOCKERHUB_TOKEN not set. Skipping Docker Hub login."
       fi
   script:
-    # --- Account Service ---
+
+    # account service
+    # GitLab Container Registry
     - echo "Building account-service Docker image..."
     - docker build -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/account-service:latest" ./account-service
-    - docker push "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA"
-    - docker push "$CI_REGISTRY_IMAGE/account-service:latest"
+    - docker push --all-tags "$CI_REGISTRY_IMAGE/account-service"
+
+    # Docker Hub
     - |
       if [ -n "$DOCKERHUB_USERNAME" ]; then
         docker tag "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA"
         docker tag "$CI_REGISTRY_IMAGE/account-service:latest" "$DOCKERHUB_USERNAME/expenseflow-account-service:latest"
-        docker push "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA"
-        docker push "$DOCKERHUB_USERNAME/expenseflow-account-service:latest"
+        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-account-service"
       fi
 
-    # --- Transaction Service ---
+    # transaction service
+    # GitLab Container Registry
     - echo "Building transaction-service Docker image..."
     - docker build -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/transaction-service:latest" ./transaction-service
-    - docker push "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA"
-    - docker push "$CI_REGISTRY_IMAGE/transaction-service:latest"
+    - docker push --all-tags "$CI_REGISTRY_IMAGE/transaction-service"
+
+    # Docker Hub
     - |
       if [ -n "$DOCKERHUB_USERNAME" ]; then
         docker tag "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA"
         docker tag "$CI_REGISTRY_IMAGE/transaction-service:latest" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest"
-        docker push "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA"
-        docker push "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest"
+        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-transaction-service"
       fi
 
-    # --- Report Service ---
+    # report service
+    # GitLab Container Registry
     - echo "Building report-service Docker image..."
     - docker build -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY_IMAGE/report-service:latest" ./report-service
-    - docker push "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA"
-    - docker push "$CI_REGISTRY_IMAGE/report-service:latest"
+    - docker push --all-tags "$CI_REGISTRY_IMAGE/report-service"
+
+    # Docker Hub
     - |
       if [ -n "$DOCKERHUB_USERNAME" ]; then
         docker tag "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA"
         docker tag "$CI_REGISTRY_IMAGE/report-service:latest" "$DOCKERHUB_USERNAME/expenseflow-report-service:latest"
-        docker push "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA"
-        docker push "$DOCKERHUB_USERNAME/expenseflow-report-service:latest"
+        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-report-service"
       fi
