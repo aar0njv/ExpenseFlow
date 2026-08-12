@@ -15,11 +15,11 @@ test:services:
     - poetry config virtualenvs.create false
   script:
     - echo "Testing account-service..."
-    - cd account-service && poetry install && PYTHONPATH=. pytest tests/ --cov=app && cd ..
+    - (cd account-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
     - echo "Testing transaction-service..."
-    - cd transaction-service && poetry install && PYTHONPATH=. pytest tests/ --cov=app && cd ..
+    - (cd transaction-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
     - echo "Testing report-service..."
-    - cd report-service && poetry install && PYTHONPATH=. pytest tests/ --cov=app && cd ..
+    - (cd report-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
 
 
 build-and-push:services:
