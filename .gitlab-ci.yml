@@ -10,15 +10,16 @@ test:services:
   image: python:3.12-slim
 
   before_script:
-    - echo "Installing test and service dependencies..."
-    - pip install --no-cache-dir -r requirements-test.txt
+    - echo "Installing Poetry..."
+    - pip install --no-cache-dir poetry
+    - poetry config virtualenvs.create false
   script:
-    - echo "Running Pytest account-service..."
-    - PYTHONPATH=account-service pytest account-service/tests/ --cov=account-service/app
-    - echo "Running Pytest transaction-service..."
-    - PYTHONPATH=transaction-service pytest transaction-service/tests/ --cov=transaction-service/app
-    - echo "Running Pytest report-service..."
-    - PYTHONPATH=report-service pytest report-service/tests/ --cov=report-service/app
+    - echo "Testing account-service..."
+    - cd account-service && poetry install && PYTHONPATH=. pytest tests/ --cov=app && cd ..
+    - echo "Testing transaction-service..."
+    - cd transaction-service && poetry install && PYTHONPATH=. pytest tests/ --cov=app && cd ..
+    - echo "Testing report-service..."
+    - cd report-service && poetry install && PYTHONPATH=. pytest tests/ --cov=app && cd ..
 
 
 build-and-push:services:
