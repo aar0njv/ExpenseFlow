@@ -1,6 +1,12 @@
 stages:
   - test
-  - build-and-push
+  - package
+
+default:
+  tags:
+    - devops
+    - docker
+    - ubuntu
 
 variables:
   DOCKER_TLS_CERTDIR: "/certs"
@@ -22,8 +28,8 @@ test:services:
     - (cd report-service && poetry lock && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
 
 
-build-and-push:services:
-  stage: build-and-push
+build-and-push:
+  stage: package
   image: docker:24.0.5
   services:
     - docker:24.0.5-dind
