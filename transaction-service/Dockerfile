@@ -7,11 +7,10 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir poetry
 
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml poetry.lock /app/
 
-# Synchronize lockfile if pyproject.toml was updated, then install prod dependencies
+# Install dependencies
 RUN poetry config virtualenvs.create false \
-    && poetry lock \
     && poetry install --no-root --without dev --no-interaction --no-ansi
 
 COPY . /app

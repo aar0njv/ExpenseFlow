@@ -23,11 +23,11 @@ test:services:
     - poetry config virtualenvs.create false
   script:
     - echo "Testing account-service..."
-    - (cd account-service && poetry lock && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
+    - (cd account-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
     - echo "Testing transaction-service..."
-    - (cd transaction-service && poetry lock && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
+    - (cd transaction-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
     - echo "Testing report-service..."
-    - (cd report-service && poetry lock && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
+    - (cd report-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
 
 
 build-and-push:
@@ -36,6 +36,7 @@ build-and-push:
   services:
     - name: docker:24.0.5-dind
       alias: docker
+      # Set public DNS servers to fix UDP lookup timeouts and set MTU=1450 to prevent network packet drops during layer pushes
       command: ["--dns=8.8.8.8", "--dns=1.1.1.1", "--mtu=1450"]
   before_script:
     - echo "Logging into GitLab Container Registry..."
@@ -48,8 +49,12 @@ build-and-push:
   script:
     # --- Account Service ---
     - echo "Building and pushing account-service..."
+
+    # Pulling the previously built image to use as cache
+    - docker pull "$CI_REGISTRY_IMAGE/account-service:latest" || true
     - |
       docker build \
+        --cache-from "$CI_REGISTRY_IMAGE/account-service:latest" \
         -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" \
         -t "$CI_REGISTRY_IMAGE/account-service:latest" \
         ./account-service
@@ -63,8 +68,11 @@ build-and-push:
 
     # --- Transaction Service ---
     - echo "Building and pushing transaction-service..."
+
+    - docker pull "$CI_REGISTRY_IMAGE/transaction-service:latest" || true
     - |
       docker build \
+        --cache-from "$CI_REGISTRY_IMAGE/transaction-service:latest" \
         -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" \
         -t "$CI_REGISTRY_IMAGE/transaction-service:latest" \
         ./transaction-service
@@ -78,8 +86,10 @@ build-and-push:
 
     # --- Report Service ---
     - echo "Building and pushing report-service..."
+    - docker pull "$CI_REGISTRY_IMAGE/report-service:latest" || true
     - |
       docker build \
+        --cache-from "$CI_REGISTRY_IMAGE/report-service:latest" \
         -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" \
         -t "$CI_REGISTRY_IMAGE/report-service:latest" \
         ./report-service
