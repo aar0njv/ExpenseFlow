@@ -48,59 +48,44 @@ build-and-push:
     # --- Account Service ---
     - echo "Building and pushing account-service..."
     - |
+      docker build \
+        -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" \
+        -t "$CI_REGISTRY_IMAGE/account-service:latest" \
+        ./account-service
+      docker push --all-tags "$CI_REGISTRY_IMAGE/account-service"
+
       if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker build \
-          -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$CI_REGISTRY_IMAGE/account-service:latest" \
-          -t "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$DOCKERHUB_USERNAME/expenseflow-account-service:latest" \
-          ./account-service
-        docker push --all-tags "$CI_REGISTRY_IMAGE/account-service"
+        docker tag "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/account-service:latest" "$DOCKERHUB_USERNAME/expenseflow-account-service:latest"
         docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-account-service"
-      else
-        docker build \
-          -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$CI_REGISTRY_IMAGE/account-service:latest" \
-          ./account-service
-        docker push --all-tags "$CI_REGISTRY_IMAGE/account-service"
       fi
 
     # --- Transaction Service ---
     - echo "Building and pushing transaction-service..."
     - |
+      docker build \
+        -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" \
+        -t "$CI_REGISTRY_IMAGE/transaction-service:latest" \
+        ./transaction-service
+      docker push --all-tags "$CI_REGISTRY_IMAGE/transaction-service"
+
       if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker build \
-          -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$CI_REGISTRY_IMAGE/transaction-service:latest" \
-          -t "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest" \
-          ./transaction-service
-        docker push --all-tags "$CI_REGISTRY_IMAGE/transaction-service"
+        docker tag "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/transaction-service:latest" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest"
         docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-transaction-service"
-      else
-        docker build \
-          -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$CI_REGISTRY_IMAGE/transaction-service:latest" \
-          ./transaction-service
-        docker push --all-tags "$CI_REGISTRY_IMAGE/transaction-service"
       fi
 
     # --- Report Service ---
     - echo "Building and pushing report-service..."
     - |
+      docker build \
+        -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" \
+        -t "$CI_REGISTRY_IMAGE/report-service:latest" \
+        ./report-service
+      docker push --all-tags "$CI_REGISTRY_IMAGE/report-service"
+
       if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker build \
-          -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$CI_REGISTRY_IMAGE/report-service:latest" \
-          -t "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$DOCKERHUB_USERNAME/expenseflow-report-service:latest" \
-          ./report-service
-        docker push --all-tags "$CI_REGISTRY_IMAGE/report-service"
+        docker tag "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/report-service:latest" "$DOCKERHUB_USERNAME/expenseflow-report-service:latest"
         docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-report-service"
-      else
-        docker build \
-          -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" \
-          -t "$CI_REGISTRY_IMAGE/report-service:latest" \
-          ./report-service
-        docker push --all-tags "$CI_REGISTRY_IMAGE/report-service"
       fi
