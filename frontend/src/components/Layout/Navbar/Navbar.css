@@ -18,13 +18,15 @@
 }
 
 .navbar-container {
-    max-width: 1280px;
-    padding: 0 32px;
+    width: 100%;
+    max-width: 100%;
+    padding: 0 48px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 10px auto;
+    box-sizing: border-box;
 }
+
 
 .navbar-logo {
     display: flex;
