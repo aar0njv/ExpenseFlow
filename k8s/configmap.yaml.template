@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: expenseflow-config
+  namespace: expenseflow
+data:
+  JWT_ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+  ACCOUNT_SERVICE_URL: "http://account-service:8000"
+  REPORT_ACCOUNT_SERVICE_URL: "http://account-service:8000/accounts"
+  REPORT_TRANSACTION_SERVICE_URL: "http://transaction-service:8000/transactions/account"
