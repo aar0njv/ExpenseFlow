@@ -5,12 +5,16 @@ ENV PORT=$SERVICE_PORT
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir poetry
+# Install poetry with pip cache mount
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install poetry
 
 COPY pyproject.toml poetry.lock /app/
 
-# Install dependencies
-RUN poetry config virtualenvs.create false \
+# Install dependencies with cache mounts
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+    --mount=type=cache,target=/root/.cache/pip \
+    poetry config virtualenvs.create false \
     && poetry install --no-root --without dev --no-interaction --no-ansi
 
 COPY . /app

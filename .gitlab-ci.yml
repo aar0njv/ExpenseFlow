@@ -12,9 +12,13 @@ variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
   DOCKER_DRIVER: overlay2
+  DOCKER_BUILDKIT: "1"  # for cache mount
 
 test:services:
   stage: test
+  parallel:
+    matrix:
+      - SERVICE: [ account-service, transaction-service, report-service ]
   image: python:3.12-slim
 
   before_script:
@@ -22,12 +26,8 @@ test:services:
     - pip install --no-cache-dir poetry
     - poetry config virtualenvs.create false
   script:
-    - echo "Testing account-service..."
-    - (cd account-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
-    - echo "Testing transaction-service..."
-    - (cd transaction-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
-    - echo "Testing report-service..."
-    - (cd report-service && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
+    - echo "Testing $SERVICE..."
+    - (cd $SERVICE && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
 
 
 build-and-push:
@@ -35,6 +35,9 @@ build-and-push:
   image: docker:24.0.5
   services:
     - name: docker:24.0.5-dind
+  parallel:
+    matrix:
+      - SERVICE: [ account-service, transaction-service, report-service ]
     
   before_script:
     - echo "Logging into GitLab Container Registry..."
@@ -45,56 +48,18 @@ build-and-push:
         echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || echo "WARNING: Docker Hub login failed. Check your DOCKERHUB_USERNAME and DOCKERHUB_TOKEN variables."
       fi
   script:
-    # --- Account Service ---
-    - echo "Building and pushing account-service..."
-
-    # Pulling the previously built image to use as cache
-    - docker pull "$CI_REGISTRY_IMAGE/account-service:latest" || true
+    - echo "Building and pushing $SERVICE..."
+    - docker pull "$CI_REGISTRY_IMAGE/$SERVICE:latest" || true
     - |
       docker build \
-        --cache-from "$CI_REGISTRY_IMAGE/account-service:latest" \
-        -t "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" \
-        -t "$CI_REGISTRY_IMAGE/account-service:latest" \
-        ./account-service
-      docker push --all-tags "$CI_REGISTRY_IMAGE/account-service"
+        --cache-from "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
+        -t "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" \
+        -t "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
+        ./$SERVICE
+      docker push --all-tags "$CI_REGISTRY_IMAGE/$SERVICE"
 
       if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker tag "$CI_REGISTRY_IMAGE/account-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-account-service:$CI_COMMIT_SHORT_SHA"
-        docker tag "$CI_REGISTRY_IMAGE/account-service:latest" "$DOCKERHUB_USERNAME/expenseflow-account-service:latest"
-        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-account-service"
-      fi
-
-    # --- Transaction Service ---
-    - echo "Building and pushing transaction-service..."
-
-    - docker pull "$CI_REGISTRY_IMAGE/transaction-service:latest" || true
-    - |
-      docker build \
-        --cache-from "$CI_REGISTRY_IMAGE/transaction-service:latest" \
-        -t "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" \
-        -t "$CI_REGISTRY_IMAGE/transaction-service:latest" \
-        ./transaction-service
-      docker push --all-tags "$CI_REGISTRY_IMAGE/transaction-service"
-
-      if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker tag "$CI_REGISTRY_IMAGE/transaction-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:$CI_COMMIT_SHORT_SHA"
-        docker tag "$CI_REGISTRY_IMAGE/transaction-service:latest" "$DOCKERHUB_USERNAME/expenseflow-transaction-service:latest"
-        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-transaction-service"
-      fi
-
-    # --- Report Service ---
-    - echo "Building and pushing report-service..."
-    - docker pull "$CI_REGISTRY_IMAGE/report-service:latest" || true
-    - |
-      docker build \
-        --cache-from "$CI_REGISTRY_IMAGE/report-service:latest" \
-        -t "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" \
-        -t "$CI_REGISTRY_IMAGE/report-service:latest" \
-        ./report-service
-      docker push --all-tags "$CI_REGISTRY_IMAGE/report-service"
-
-      if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker tag "$CI_REGISTRY_IMAGE/report-service:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-report-service:$CI_COMMIT_SHORT_SHA"
-        docker tag "$CI_REGISTRY_IMAGE/report-service:latest" "$DOCKERHUB_USERNAME/expenseflow-report-service:latest"
-        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-report-service"
+        docker tag "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-$SERVICE:$CI_COMMIT_SHORT_SHA"
+        docker tag "$CI_REGISTRY_IMAGE/$SERVICE:latest" "$DOCKERHUB_USERNAME/expenseflow-$SERVICE:latest"
+        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-$SERVICE"
       fi
