@@ -35,9 +35,7 @@ build-and-push:
   image: docker:24.0.5
   services:
     - name: docker:24.0.5-dind
-      alias: docker
-      # Set public DNS servers to fix UDP lookup timeouts and set MTU=1450 to prevent network packet drops during layer pushes
-      command: ["--dns=8.8.8.8", "--dns=1.1.1.1", "--mtu=1450"]
+    
   before_script:
     - echo "Logging into GitLab Container Registry..."
     - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
