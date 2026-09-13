@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: expenseflow-ingress
+  namespace: expenseflow
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /accounts(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: account-service
+                port:
+                  number: 8000
+
+          - path: /transactions(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: transaction-service
+                port:
+                  number: 8000
+          
+          - path: /reports(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: report-service
+                port:
+                  number: 8000
