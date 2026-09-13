@@ -3,9 +3,6 @@ default:
     name: bitnami/kubectl:latest
     entrypoint: [""]
 
-  extra_hosts:
-    - "k8smaster:192.168.56.103"
-    - "k8sworker:192.168.56.104"
   tags:
     - devops
     - docker
@@ -20,6 +17,10 @@ default:
         mkdir -p ~/.kube
         cp /root/.kube/config ~/.kube/config
       fi
+      chmod 600 ~/.kube/config 2>/dev/null || true
+      sed -i -e 's/k8smaster/192.168.56.103/g' -e 's/k8sworker/192.168.56.104/g' ~/.kube/config 2>/dev/null || true
+
+      
 
 # namespace, configmap, secrets, storage
 k8s-config:
