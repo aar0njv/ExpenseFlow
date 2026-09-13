@@ -1,5 +1,7 @@
 default:
-  image: bitnami/kubectl:latest
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
   tags:
     - devops
     - docker
