@@ -2,10 +2,23 @@ default:
   image:
     name: bitnami/kubectl:latest
     entrypoint: [""]
+
   tags:
     - devops
     - docker
     - ubuntu
+  
+  before_script:
+    - echo "192.168.56.103 k8smaster" >> /etc/hosts || true
+    - echo "192.168.56.104 k8sworker" >> /etc/hosts || true
+    - |
+      if [ -n "$KUBE_CONFIG" ]; then
+        mkdir -p ~/.kube
+        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config 2>/dev/null || echo "$KUBE_CONFIG" > ~/.kube/config
+      elif [ -f /root/.kube/config ]; then
+        mkdir -p ~/.kube
+        cp /root/.kube/config ~/.kube/config
+      fi
 
 # namespace, configmap, secrets, storage
 k8s-config:
@@ -14,12 +27,6 @@ k8s-config:
     - docker-image-build-push
   script:
     - echo "Setting up Kubernetes Namespace, Secrets, and ConfigMaps..."
-
-    - |
-      if [ -n "$KUBE_CONFIG" ]; then
-        mkdir -p ~/.kube
-        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config || echo "$KUBE_CONFIG" > ~/.kube/config
-      fi
 
     - kubectl apply -f k8s/namespace.yaml
 
@@ -59,11 +66,6 @@ k8s-databases:
     - k8s-config
   script:
     - echo "Deploying PostgreSQL Databases to Kubernetes..."
-    - |
-      if [ -n "$KUBE_CONFIG" ]; then
-        mkdir -p ~/.kube
-        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config || echo "$KUBE_CONFIG" > ~/.kube/config
-      fi
     - kubectl apply -f k8s/databases/
 
 # services and ingress deployment
@@ -73,13 +75,9 @@ k8s-services:
     - k8s-config
   script:
     - echo "Deploying Microservices and Ingress to Kubernetes..."
-    - |
-      if [ -n "$KUBE_CONFIG" ]; then
-        mkdir -p ~/.kube
-        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config || echo "$KUBE_CONFIG" > ~/.kube/config
-      fi
     - kubectl apply -f k8s/services/
     - kubectl apply -f k8s/ingress.yaml
     - kubectl rollout status deployment/account-service -n expenseflow --timeout=120s
     - kubectl rollout status deployment/transaction-service -n expenseflow --timeout=120s
     - kubectl rollout status deployment/report-service -n expenseflow --timeout=120s
+

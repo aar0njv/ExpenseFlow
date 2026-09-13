@@ -61,7 +61,9 @@ docker-image-build-push:
   script:
     - |
       for SERVICE in account-service transaction-service report-service; do
-        echo "Building and pushing $SERVICE with BuildKit Cache..."
+        echo "------------------------------------------------------"
+        echo ">>>>> building and pushing $SERVICE image <<<<<"
+        echo "------------------------------------------------------"
         docker pull "$CI_REGISTRY_IMAGE/$SERVICE:latest" || true
         docker build \
           --build-arg BUILDKIT_INLINE_CACHE=1 \
