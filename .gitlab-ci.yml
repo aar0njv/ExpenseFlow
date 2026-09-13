@@ -23,6 +23,9 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_BUILDKIT: "1"  # for cache mount
 
+  DOCKER_CLIENT_TIMEOUT: "300"
+  COMPOSE_HTTP_TIMEOUT: "300"
+
 test:services:
   stage: test
   parallel:
@@ -41,12 +44,10 @@ test:services:
 
 docker-image-build-push:
   stage: package
+  retry: 2
   image: docker:24.0.5
   services:
     - name: docker:24.0.5-dind
-  parallel:
-    matrix:
-      - SERVICE: [ account-service, transaction-service, report-service ]
     
   before_script:
     - export DOCKER_BUILDKIT=1
@@ -58,19 +59,22 @@ docker-image-build-push:
         echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || echo "WARNING: Docker Hub login failed."
       fi
   script:
-    - echo "Building and pushing $SERVICE with BuildKit Cache..."
-    - docker pull "$CI_REGISTRY_IMAGE/$SERVICE:latest" || true
     - |
-      docker build \
-        --build-arg BUILDKIT_INLINE_CACHE=1 \
-        --cache-from "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
-        -t "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" \
-        -t "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
-        ./$SERVICE
-      docker push --all-tags "$CI_REGISTRY_IMAGE/$SERVICE"
+      for SERVICE in account-service transaction-service report-service; do
+        echo "Building and pushing $SERVICE with BuildKit Cache..."
+        docker pull "$CI_REGISTRY_IMAGE/$SERVICE:latest" || true
+        docker build \
+          --build-arg BUILDKIT_INLINE_CACHE=1 \
+          --cache-from "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
+          -t "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" \
+          -t "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
+          ./$SERVICE
+        docker push --all-tags "$CI_REGISTRY_IMAGE/$SERVICE"
 
-      if [ -n "$DOCKERHUB_USERNAME" ]; then
-        docker tag "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-$SERVICE:$CI_COMMIT_SHORT_SHA"
-        docker tag "$CI_REGISTRY_IMAGE/$SERVICE:latest" "$DOCKERHUB_USERNAME/expenseflow-$SERVICE:latest"
-        docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-$SERVICE"
-      fi
+        if [ -n "$DOCKERHUB_USERNAME" ]; then
+          docker tag "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" "$DOCKERHUB_USERNAME/expenseflow-$SERVICE:$CI_COMMIT_SHORT_SHA"
+          docker tag "$CI_REGISTRY_IMAGE/$SERVICE:latest" "$DOCKERHUB_USERNAME/expenseflow-$SERVICE:latest"
+          docker push --all-tags "$DOCKERHUB_USERNAME/expenseflow-$SERVICE"
+        fi
+      done
+
