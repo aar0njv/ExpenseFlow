@@ -49,18 +49,20 @@ docker-image-build-push:
       - SERVICE: [ account-service, transaction-service, report-service ]
     
   before_script:
+    - export DOCKER_BUILDKIT=1
     - echo "Logging into GitLab Container Registry..."
     - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - |
       if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
         echo "Logging into Docker Hub..."
-        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || echo "WARNING: Docker Hub login failed. Check your DOCKERHUB_USERNAME and DOCKERHUB_TOKEN variables."
+        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || echo "WARNING: Docker Hub login failed."
       fi
   script:
-    - echo "Building and pushing $SERVICE..."
+    - echo "Building and pushing $SERVICE with BuildKit Cache..."
     - docker pull "$CI_REGISTRY_IMAGE/$SERVICE:latest" || true
     - |
       docker build \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
         --cache-from "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
         -t "$CI_REGISTRY_IMAGE/$SERVICE:$CI_COMMIT_SHORT_SHA" \
         -t "$CI_REGISTRY_IMAGE/$SERVICE:latest" \
