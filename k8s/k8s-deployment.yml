@@ -3,14 +3,15 @@ default:
     name: bitnami/kubectl:latest
     entrypoint: [""]
 
+  extra_hosts:
+    - "k8smaster:192.168.56.103"
+    - "k8sworker:192.168.56.104"
   tags:
     - devops
     - docker
     - ubuntu
   
   before_script:
-    - echo "192.168.56.103 k8smaster" >> /etc/hosts || true
-    - echo "192.168.56.104 k8sworker" >> /etc/hosts || true
     - |
       if [ -n "$KUBE_CONFIG" ]; then
         mkdir -p ~/.kube
