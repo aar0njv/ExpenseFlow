@@ -1,11 +1,15 @@
-workflow:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - when: never
+#workflow:
+#  rules:
+#    - if: '$CI_COMMIT_BRANCH == "main"'
+#    - when: never
 
 stages:
   - test
   - package
+  - deploy
+
+include:
+  - local: 'k8s/k8s-deployment.yml'
 
 default:
   tags:
@@ -35,7 +39,7 @@ test:services:
     - (cd $SERVICE && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
 
 
-build-and-push:
+docker-image-build-push:
   stage: package
   image: docker:24.0.5
   services:
