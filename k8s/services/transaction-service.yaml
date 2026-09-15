@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-service
+  namespace: expenseflow
+  labels:
+    app: transaction-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+  selector:
+    app: transaction-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-service
+  namespace: expenseflow
+  labels:
+    app: transaction-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transaction-service
+  template:
+    metadata:
+      labels:
+        app: transaction-service
+    spec:
+      imagePullSecrets:
+        - name: gitlab-registry-secret
+      containers:
+        - name: transaction-service
+          image: registry.gitlab.com/aar0njv-projects/expenseflow/transaction-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: expenseflow-secret
+                  key: TRANSACTION_DATABASE_URL
+            - name: ACCOUNT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: expenseflow-config
+                  key: ACCOUNT_SERVICE_URL

@@ -1,0 +1,85 @@
+default:
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
+
+  tags:
+    - devops
+    - docker
+    - ubuntu
+  
+  before_script:
+    - |
+      if [ -n "$KUBE_CONFIG" ]; then
+        mkdir -p ~/.kube
+        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config 2>/dev/null || echo "$KUBE_CONFIG" > ~/.kube/config
+      elif [ -f /root/.kube/config ]; then
+        mkdir -p ~/.kube
+        cp /root/.kube/config ~/.kube/config
+      fi
+      chmod 600 ~/.kube/config 2>/dev/null || true
+      sed -i -e 's/k8smaster/192.168.56.103/g' -e 's/k8sworker/192.168.56.104/g' ~/.kube/config 2>/dev/null || true
+
+      
+
+# namespace, configmap, secrets, storage
+k8s-config:
+  stage: deploy
+  needs:
+    - docker-image-build-push
+  script:
+    - echo "Setting up Kubernetes Namespace, Secrets, and ConfigMaps..."
+
+    - kubectl apply -f k8s/namespace.yaml
+
+    # configMap / secret creation
+    - |
+      kubectl create secret docker-registry gitlab-registry-secret \
+        --docker-server="$CI_REGISTRY" \
+        --docker-username="${CI_DEPLOY_USER:-$CI_REGISTRY_USER}" \
+        --docker-password="${CI_DEPLOY_PASSWORD:-$CI_JOB_TOKEN}" \
+        -n expenseflow --dry-run=client -o yaml | kubectl apply -f -
+
+    - |
+      kubectl create configmap expenseflow-config \
+        --from-literal=JWT_ALGORITHM="${JWT_ALGORITHM:-HS256}" \
+        --from-literal=ACCESS_TOKEN_EXPIRE_MINUTES="${ACCESS_TOKEN_EXPIRE_MINUTES:-60}" \
+        --from-literal=ACCOUNT_SERVICE_URL="http://account-service:8000" \
+        --from-literal=REPORT_ACCOUNT_SERVICE_URL="http://account-service:8000/accounts" \
+        --from-literal=REPORT_TRANSACTION_SERVICE_URL="http://transaction-service:8000/transactions/account" \
+        -n expenseflow --dry-run=client -o yaml | kubectl apply -f -
+
+      kubectl create secret generic expenseflow-secret \
+        --from-literal=ACCOUNT_DB_PASSWORD="$ACCOUNT_DB_PASSWORD" \
+        --from-literal=TRANSACTION_DB_PASSWORD="$TRANSACTION_DB_PASSWORD" \
+        --from-literal=REPORT_DB_PASSWORD="$REPORT_DB_PASSWORD" \
+        --from-literal=ACCOUNT_DATABASE_URL="postgresql+psycopg://account_user:${ACCOUNT_DB_PASSWORD}@account-db:5432/account_db" \
+        --from-literal=TRANSACTION_DATABASE_URL="postgresql+psycopg://transaction_user:${TRANSACTION_DB_PASSWORD}@transaction-db:5432/transaction_db" \
+        --from-literal=REPORT_DATABASE_URL="postgresql+psycopg://report_user:${REPORT_DB_PASSWORD}@report-db:5432/report_db" \
+        --from-literal=JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+        -n expenseflow --dry-run=client -o yaml | kubectl apply -f -
+
+    - kubectl apply -f k8s/databases/pv.yaml
+
+# database deployment
+k8s-databases:
+  stage: deploy
+  needs:
+    - k8s-config
+  script:
+    - echo "Deploying PostgreSQL Databases to Kubernetes..."
+    - kubectl apply -f k8s/databases/
+
+# services and ingress deployment
+k8s-services:
+  stage: deploy
+  needs:
+    - k8s-config
+  script:
+    - echo "Deploying Microservices and Ingress to Kubernetes..."
+    - kubectl apply -f k8s/services/
+    - kubectl apply -f k8s/ingress.yaml
+    - kubectl rollout status deployment/account-service -n expenseflow --timeout=120s
+    - kubectl rollout status deployment/transaction-service -n expenseflow --timeout=120s
+    - kubectl rollout status deployment/report-service -n expenseflow --timeout=120s
+

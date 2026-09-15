@@ -34,17 +34,6 @@
 
 ---
 
-## Progress & Milestones Completed
-
-- **Backend System Design**: Designed and implemented 3 decoupled Python (FastAPI) microservices.
-- **Database Isolation**: Configured 3 dedicated PostgreSQL containers with schemas and migration engines.
-- **Inter-Service Communication**: Built sync/async REST communication between Transaction, Account and Report services.
-- **Docker Containerization**: Standardized Dockerfiles and multi-container `docker-compose.yml` orchestration.
-- **Frontend Shell**: Developed single-page React frontend with smooth scrolling and animations for dev testing (`npm run dev`).
-- **CI/CD Pipeline Automation**: Fully configured multi-stage GitLab CI/CD pipeline running unit testing, Docker image packaging, and dual registry publishing (GitLab Registry & Docker Hub).
-
----
-
 ## GitLab CI/CD & Runner Configuration
 
 ### 1. Pipeline Stages
