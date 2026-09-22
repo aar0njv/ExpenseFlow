@@ -1,3 +1,14 @@
+# database services
+# PVC (persistent volume claims) are storage request tickets issued by a pod
+# used to access the PV 
+
+# StatefulSets used to manage stateful workloads (db)
+# deployments use random hashes, StatefulSets guarantee db pods to re-attach
+# to the same disk volume after rescheduling
+
+# clusterIP: None = headless service (unloadbalanced for same db access)
+
+
 apiVersion: v1
 kind: Service
 metadata: 

@@ -1,3 +1,7 @@
+# Services: give pods a ClusterIP since pods are ephermeral
+# Deployments: manage multiple pod replicas for zero downtime, scaling and auto-healing
+
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,7 +17,9 @@ spec:
       name: http
   selector:
     app: account-service
+
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
