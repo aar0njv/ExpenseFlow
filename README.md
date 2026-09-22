@@ -1,97 +1,63 @@
-# ExpenseFlow: Microservices Architecture & DevOps Automation Pipeline
+# ExpenseFlow
 
-> **Core Focus**: A personal engineering project built to demonstrate **backend system design**, **microservices architecture**, **container orchestration** and **DevOps automation (CI/CD)** workflows.
-
----
-
-## Key Microservices & Responsibilities
-
-1. **Account Service**
-   - User registration (`POST /accounts`), authentication (`POST /login` producing Bearer JWT tokens), profile management (`GET /accounts/me`) and balance updates (`PATCH /accounts/{id}/balance`).
-   - Backed by an isolated PostgreSQL container (`account-db`).
-
-2. **Transaction Service**
-   - Handles deposits and withdrawals (`POST /transactions`) and ledger history (`GET /transactions/account/{id}`).
-   - Automatically synchronizes account balance adjustments via inter-service HTTP requests to the Account Service.
-   - Backed by an isolated PostgreSQL container (`transaction-db`).
-
-3. **Report Service**
-   - Financial report aggregator (`GET /reports/account/{id}`) fetching live metrics from both Account and Transaction services.
-   - Calculates total deposits, total withdrawals, and net cash flow while persisting report execution history.
-   - Backed by an isolated PostgreSQL container (`report-db`).
-
-4. **Single-Page Frontend**
-   - Interactive React + Vite interface with smooth scrolling, glassmorphism aesthetics and real-time dashboard state. *(UI design accelerated via AI)*.
+> **Core Focus**: A personal project built to demonstrate **backend system design**, **microservices architecture**, **container orchestration** and **DevOps automation (CI/CD)** workflows.
 
 ---
 
-## Container Orchestration
+ExpenseFlow is a multi-service financial tracking application built with Python (FastAPI), PostgreSQL, React, and Kubernetes. Each microservice manages its own isolated database and handles a specific domain within the expense tracking workflow.
 
-- **Service Isolation & Health Checks**: Every microservice relies on PostgreSQL `pg_isready` health checks in `docker-compose.yml` to ensure DB readiness before service startup.
-- **Bridge Network Architecture**: All containers communicate via a private Docker bridge network (`expenseflow_net`).
-- **Environment Parity**: Configured with `.env.example` templates for portable, reproducible deployments across local and CI environments.
-- **Decoupled API Design**: Strict CORS middleware and REST API specs enable independent service scaling and deployment.
+## Microservices Architecture
 
----
+- **Account Service**: Handles user authentication (JWT), account creation, profile management, and account balance updates.
+- **Transaction Service**: Manages deposits and withdrawals. Communicates with the Account Service to sync balance changes.
+- **Report Service**: Aggregates user transactions and account data to generate financial reports and cash flow summaries.
+- **Frontend**: React dashboard for managing accounts, recording transactions, and viewing analytics.
 
-## GitLab CI/CD & Runner Configuration
+Each Python service uses FastAPI, SQLAlchemy and Poetry for dependency management. Each microservice is backed by its own dedicated PostgreSQL database instance.
 
-### 1. Pipeline Stages
-The `.gitlab-ci.yml` pipeline consists of two primary stages:
-- **`test` Stage (`test:services`)**:
-  - Uses `python:3.12-slim` image.
-  - Installs dependencies via Poetry (`poetry lock && poetry install`).
-  - Runs unit test with code coverage (`pytest --cov=app`) across all three microservices.
-- **`package` Stage (`build-and-push`)**:
-  - Uses `docker:24.0.5` image with `docker:24.0.5-dind` (Docker-in-Docker) service.
-  - Authenticates against both **GitLab Container Registry** (`$CI_JOB_TOKEN`) and **Docker Hub** (`$DOCKERHUB_USERNAME`, `$DOCKERHUB_TOKEN`).
-  - Builds and pushes tagged container images for all three microservices using `$CI_COMMIT_SHORT_SHA` and `latest` tags.
+## Tech Stack
 
-### 2. Self-Hosted Virtual Machine Runner Setup
-- **Executor**: Registered with `docker` executor on a Linux Virtual Machine.
-- **Privileged Mode**: `privileged = true` enabled in `/etc/gitlab-runner/config.toml` to support DinD container operation.
-- **DinD Environment Configuration**:
-  ```yaml
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
+- **Backend**: Python 3.12, FastAPI, SQLAlchemy, Poetry
+- **Databases**: PostgreSQL (isolated instances per service)
+- **Containerization & Orchestration**: Docker, Kubernetes
+- **CI/CD**: GitLab CI (automated testing, Docker build & push, automated K8s deployment)
 
-   ...
+## Getting Started (Local Development)
 
-  image: docker:24.0.5
-  services:
-    - name: docker:24.0.5-dind
-      alias: docker
-  ```
+### Prerequisites
+- Docker & Docker Compose
+- Node.js 18+ (for local frontend development without Docker)
 
-### 3. Predefined & Custom CI/CD Variables
+### Run with Docker Compose
 
-| Variable Name | Type | Description |
-| :--- | :--- | :--- |
-| `$CI_JOB_TOKEN` | Predefined | Short-lived token automatically generated by GitLab to authenticate with the GitLab Container Registry. |
-| `$CI_REGISTRY` | Predefined | Address of the GitLab Container Registry for the project (e.g., `registry.gitlab.com`). |
-| `$CI_REGISTRY_USER` | Predefined | Username used to authenticate against the GitLab Container Registry (typically `gitlab-ci-token`). |
-| `$CI_REGISTRY_IMAGE` | Predefined | Base URL/repository path where images are pushed in the GitLab Container Registry. |
-| `$CI_COMMIT_SHORT_SHA` | Predefined | First 8 characters of the commit hash, used to uniquely tag container builds (e.g., `:a1b2c3d4`). |
-| `$DOCKERHUB_USERNAME` | Custom / Secret | Docker Hub account username configured in GitLab CI/CD Variables settings. |
-| `$DOCKERHUB_TOKEN` | Custom / Secret | Docker Hub Personal Access Token (PAT) configured in GitLab CI/CD Variables settings for image pushing. |
+1. Clone the repository:
+   ```bash
+   git clone https://gitlab.com/aar0njv-projects/expenseflow.git
+   cd expenseflow
+   ```
 
----
+2. Start all services and databases:
+   ```bash
+   docker compose up --build
+   ```
 
-## Running the Application
+3. Access the services:
+   - Frontend: `http://localhost:5173`
+   - Account Service API Docs: `http://localhost:8001/docs`
+   - Transaction Service API Docs: `http://localhost:8002/docs`
+   - Report Service API Docs: `http://localhost:8003/docs`
 
-### 1. Start Backend Microservices & Databases
-```bash
-docker compose up --build
-```
+## Kubernetes & Production Deployment
 
-### 2. Start Frontend Interface
-```bash
-cd frontend
-npm install
-npm run dev
-```
+Production manifests and cluster setup guides are located in the [`k8s/`](./k8s) directory.
+
+- **Stateful workloads**: PostgreSQL databases deployed as `StatefulSets` with `PersistentVolumeClaim` storage.
+- **Stateless workloads**: Microservices deployed as `Deployments` with `ClusterIP` services.
+- **Ingress**: Single entrypoint using NGINX Ingress Controller routing paths (`/accounts`, `/transactions`, `/reports`) to backend services.
+- **CI/CD**: `.gitlab-ci.yml` automatically builds Docker images on commit, pushes to GitLab Container Registry & Docker Hub, and applies updates to the Kubernetes cluster.
+
+For full Kubernetes deployment instructions, see [`k8s/README.md`](./k8s/README.md).
+
 
 
 
