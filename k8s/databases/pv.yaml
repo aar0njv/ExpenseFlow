@@ -1,3 +1,6 @@
+# physical disk storage on host machine (/mnt/data/)
+# allocates 1GB of persistent storage for each postgresql db
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
