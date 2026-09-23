@@ -26,7 +26,7 @@ default:
 k8s-config:
   stage: deploy
   needs:
-    - docker-image-build-push
+    - docker-build
   script:
     - echo "Setting up Kubernetes Namespace, Secrets, and ConfigMaps..."
 
