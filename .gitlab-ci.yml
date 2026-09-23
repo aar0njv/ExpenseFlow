@@ -26,7 +26,7 @@ variables:
   DOCKER_CLIENT_TIMEOUT: "300"
   COMPOSE_HTTP_TIMEOUT: "300"
 
-test:services:
+service-test:
   stage: test
   parallel:
     matrix:
@@ -42,7 +42,7 @@ test:services:
     - (cd $SERVICE && poetry install --no-root && PYTHONPATH=. pytest tests/ --cov=app)
 
 
-docker-image-build-push:
+docker-build:
   stage: package
   retry: 2
   image: docker:24.0.5
