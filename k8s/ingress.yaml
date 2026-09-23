@@ -13,7 +13,8 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - http:
+    - host: expenseflow.com
+      http:
         paths:
           - path: /accounts(/|$)(.*)
             pathType: ImplementationSpecific
